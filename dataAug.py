@@ -46,8 +46,12 @@ def rotate_image(image, angle, output_path):
     elif angle == 270:
         rotated_img = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE) # 반시계방향으로 90도 회전
     else: # 30도와 같은 임의의 각도 회전
-        print("지원하지 않는 회전 각도입니다.", angle)
-        return image
+        (h, w) = image.shape[:2]
+        center = (w // 2, h // 2)
+        M = cv2.getRotationMatrix2D(center, angle, 1.0) # 회전 변환 행렬
+        # Affine 변환 적용(회전)
+        rotated_img = cv2.warpAffine(image, M, (w, h))
+        
     print(f"Saving rotated image (angle {angle}) to: {output_path}")
     cv2.imwrite(output_path, rotated_img)
     return rotated_img
@@ -103,7 +107,7 @@ if __name__ == '__main__':
     create_folder_if_not_exists(crop_folder)
     
     # 원하는 사진 받아와서 실행해보기
-    fileName = 'silver_black_1.jpg'
+    fileName = 'pink_white_1.jpg'
     filePath = os.path.join(dataOrg, fileName)
     img = cv2.imread(filePath)
     
@@ -113,14 +117,23 @@ if __name__ == '__main__':
     cv2.imshow('resize', img_resize)
     
     # rotate 이미지
+    rotate_output_10 = modify_filename(rotate_folder, fileName, '_rot_10')
+    rotate_output_20 = modify_filename(rotate_folder, fileName, '_rot_20')
+    rotate_output_30 = modify_filename(rotate_folder, fileName, '_rot_30')
     rotate_output_90 = modify_filename(rotate_folder, fileName, '_rot_90')
     rotate_output_180 = modify_filename(rotate_folder, fileName, '_rot_180')
     rotate_output_270 = modify_filename(rotate_folder, fileName, '_rot_270')
     
+    img_rot_10 = rotate_image(img_resize, 10, rotate_output_10)
+    img_rot_20 = rotate_image(img_resize, 20, rotate_output_20)
+    img_rot_30 = rotate_image(img_resize, 30, rotate_output_30)
     img_rot_90 = rotate_image(img_resize, 90, rotate_output_90)
     img_rot_180 = rotate_image(img_resize, 180, rotate_output_180)
     img_rot_270 = rotate_image(img_resize, 270, rotate_output_270)
     
+    cv2.imshow('rotate10', img_rot_10)
+    cv2.imshow('rotate20', img_rot_20)
+    cv2.imshow('rotate30', img_rot_30)
     cv2.imshow('rotate90', img_rot_90)
     cv2.imshow('rotate180', img_rot_180)
     cv2.imshow('rotate270', img_rot_270)
